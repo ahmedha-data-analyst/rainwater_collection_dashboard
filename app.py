@@ -323,7 +323,7 @@ def encode_logo() -> str:
 
 
 def is_light() -> bool:
-    return st.context.theme.base == "light"
+    return st.context.theme.type == "light"
 
 
 def apply_chart_layout(fig: go.Figure, height: int = 380) -> go.Figure:
