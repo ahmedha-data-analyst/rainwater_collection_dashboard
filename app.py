@@ -323,7 +323,7 @@ def encode_logo() -> str:
 
 
 def is_light() -> bool:
-    return (st.context.theme.type or "dark") == "light"
+    return st.session_state.get("theme", "dark") == "light"
 
 
 def apply_chart_layout(fig: go.Figure, height: int = 380) -> go.Figure:
@@ -454,13 +454,6 @@ def main() -> None:
     station, summary = load_data()
     year_min, year_max = int(station["Year"].min()), int(station["Year"].max())
 
-    # Detect theme changes from the native Streamlit menu and rerun immediately
-    # so the HydroStar CSS palette updates without waiting for another interaction.
-    _current_theme = st.context.theme.type or "dark"
-    if st.session_state.get("_last_theme") != _current_theme:
-        st.session_state["_last_theme"] = _current_theme
-        st.rerun()
-
     # ---- SIDEBAR -----------------------------------------------------------
     with st.sidebar:
         st.markdown(
@@ -469,6 +462,10 @@ def main() -> None:
             '<p class="sidebar-sub">Cardiff climate baseline</p></div>',
             unsafe_allow_html=True,
         )
+
+        # Theme toggle — controls which HydroStar CSS palette is applied.
+        light = st.toggle("Light mode", value=st.session_state.get("theme", "dark") == "light")
+        st.session_state["theme"] = "light" if light else "dark"
 
         # Which dataset feeds the rainfall baseline.
         st.markdown('<p class="sidebar-label">Rainfall baseline</p>', unsafe_allow_html=True)
@@ -515,7 +512,6 @@ def main() -> None:
             unsafe_allow_html=True,
         )
 
-    # Inject HydroStar CSS driven by the native Streamlit theme setting.
     inject_css("light" if is_light() else "dark")
 
     # ---- HEADER ------------------------------------------------------------
