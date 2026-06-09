@@ -323,7 +323,7 @@ def encode_logo() -> str:
 
 
 def is_light() -> bool:
-    return st.context.theme.type == "light"
+    return (st.context.theme.type or "dark") == "light"
 
 
 def apply_chart_layout(fig: go.Figure, height: int = 380) -> go.Figure:
@@ -453,6 +453,13 @@ def main() -> None:
 
     station, summary = load_data()
     year_min, year_max = int(station["Year"].min()), int(station["Year"].max())
+
+    # Detect theme changes from the native Streamlit menu and rerun immediately
+    # so the HydroStar CSS palette updates without waiting for another interaction.
+    _current_theme = st.context.theme.type or "dark"
+    if st.session_state.get("_last_theme") != _current_theme:
+        st.session_state["_last_theme"] = _current_theme
+        st.rerun()
 
     # ---- SIDEBAR -----------------------------------------------------------
     with st.sidebar:
