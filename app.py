@@ -323,7 +323,7 @@ def encode_logo() -> str:
 
 
 def is_light() -> bool:
-    return st.session_state.get("theme", "dark") == "light"
+    return st.context.theme.base == "light"
 
 
 def apply_chart_layout(fig: go.Figure, height: int = 380) -> go.Figure:
@@ -463,12 +463,6 @@ def main() -> None:
             unsafe_allow_html=True,
         )
 
-        # Theme toggle (sets session_state; CSS is injected just after this block).
-        st.markdown('<p class="sidebar-label">Appearance</p>', unsafe_allow_html=True)
-        light = st.toggle("Light mode", value=False,
-                          help="Switch between the dark and light HydroStar themes.")
-        st.session_state["theme"] = "light" if light else "dark"
-
         # Which dataset feeds the rainfall baseline.
         st.markdown('<p class="sidebar-label">Rainfall baseline</p>', unsafe_allow_html=True)
         source = st.radio(
@@ -514,8 +508,8 @@ def main() -> None:
             unsafe_allow_html=True,
         )
 
-    # Inject theme CSS now that the sidebar has set the theme.
-    inject_css(st.session_state.get("theme", "dark"))
+    # Inject HydroStar CSS driven by the native Streamlit theme setting.
+    inject_css("light" if is_light() else "dark")
 
     # ---- HEADER ------------------------------------------------------------
     period_note = ("long-term average rainfall (1978-2025)" if mode == "summary"
